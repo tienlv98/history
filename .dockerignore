@@ -1,0 +1,9 @@
+.git
+node_modules
+dist
+.eslint*
+.prettier*
+.gitignore
+.gitattributes
+.husky
+README.md
