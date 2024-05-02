@@ -57,7 +57,8 @@ const chainType: Record<string, string> = {
     omni: 'omni',
     orderly: 'orderly',
     skate: 'skate',
-    wanchain: 'wanchain'
+    wanchain: 'wanchain',
+    coreDao: 'coreDao'
 }
 
 export const LINK_EXPLORER_API = {
@@ -96,8 +97,12 @@ export const LINK_EXPLORER_API = {
     [chainType.orderly]: 'https://explorer.orderly.network/api?',
     [chainType.skate]: 'https://nolliescan.skatechain.org/api?',
     // [chainType.wanchain]: 'https://api-moonbeam.moonscan.io/api?',
+    [chainType.coreDao]: 'https://openapi.coredao.org/api?'
 }
 export const KEY_EXPLORER_API = {
+    [chainType.coreDao]:[
+        '4f43ca5bfea34910b56857ae28ed9a8a'
+    ],
     [chainType.cronos]: [
         '3SWGXP1JG3N1GGG31GT662BSFFURT3QF8R',
         'TRW171U8SQYV75WMBNDF3SF4JR63EP1INF',

@@ -1,4 +1,4 @@
-import RecordServices from '@services/reacordService';
+import RecordServices from '@services/recordService';
 import WalletServices from '@services/walletMigrate';
 import {
   Body,
