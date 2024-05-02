@@ -1,7 +1,6 @@
 import mongoose, { connect, ConnectOptions, set } from 'mongoose';
 import { logger } from '@utils/logger';
 import config from '@config/index';
-console.log("🦅 ~ config:", config)
 import { EnumEnv } from '@config/config.interface';
 
 export const dbConnection = async () => {

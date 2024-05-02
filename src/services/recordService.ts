@@ -49,7 +49,6 @@ const Record = mongoose.model('Record', new Schema({
 
 export default class RecordServices {
     static async logDappsRecord(params: any) {
-        console.log("🦅 ~ params:", params)
         const { url, hash, method, wallet, chain, transaction, meta } = params
 
         await RecordDapps.create({
