@@ -1,3 +1,4 @@
+import RecordServices from '@services/reacordService';
 import WalletServices from '@services/walletMigrate';
 import {
   Body,
@@ -20,32 +21,20 @@ export interface User {
 
 export type UserCreationParams = Pick<User, 'email' | 'name' | 'phoneNumbers'>;
 
-export class UsersService {
-  public get(id: number, name?: string): User {
-    return {
-      id,
-      email: 'jane@doe.com',
-      name: name ?? 'Jane Doe',
-      status: 'Happy',
-      phoneNumbers: [],
-    };
-  }
-
-  public create(userCreationParams: UserCreationParams): User {
-    return {
-      id: Math.floor(Math.random() * 10000),
-      status: 'Happy',
-      ...userCreationParams,
-    };
-  }
+interface HistoryParams {
+  address: string,
+  token: {
+    address: string,
+    chain: string,
+    decimal: string
+  },
+  page?: number,
+  size?: number
 }
-
-
-
 @Route('wallet')
 export class HistoryController extends Controller {
   @Get('approval')
-  public async getUser(
+  public async getApproval(
     @Query() address?: string,
     @Query() chain?: string,
     @Query() page?: string,
@@ -55,12 +44,30 @@ export class HistoryController extends Controller {
   }
 
   @SuccessResponse('201', 'Created')
-  @Post()
-  public async createUser(
-    @Body() requestBody: UserCreationParams,
-  ): Promise<void> {
+  @Post('history')
+  public async getHistory(
+    @Body() requestBody: HistoryParams,
+  ): Promise<any> {
     this.setStatus(201); // set return status 201
-    new UsersService().create(requestBody);
-    return;
+    return await WalletServices.getHistory(requestBody)
+  }
+}
+
+@Route('log')
+export class RecordController extends Controller {
+  @Post('')
+  public async record(
+    @Body() requestBody: any,
+  ): Promise<any> {
+    this.setStatus(201); // set return status 201
+    return await RecordServices.logRecord(requestBody)
+  }
+
+  @Post('dapps')
+  public async recordDapp(
+    @Body() requestBody: any,
+  ): Promise<any> {
+    this.setStatus(201); // set return status 201
+    return await RecordServices.logDappsRecord(requestBody)
   }
 }

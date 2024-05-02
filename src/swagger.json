@@ -7,31 +7,45 @@
 		"requestBodies": {},
 		"responses": {},
 		"schemas": {
-			"Pick_User.email-or-name-or-phoneNumbers_": {
+			"HistoryParams": {
 				"properties": {
-					"email": {
+					"address": {
 						"type": "string"
 					},
-					"name": {
-						"type": "string"
-					},
-					"phoneNumbers": {
-						"items": {
-							"type": "string"
+					"token": {
+						"properties": {
+							"decimal": {
+								"type": "string"
+							},
+							"chain": {
+								"type": "string"
+							},
+							"address": {
+								"type": "string"
+							}
 						},
-						"type": "array"
+						"required": [
+							"decimal",
+							"chain",
+							"address"
+						],
+						"type": "object"
+					},
+					"page": {
+						"type": "number",
+						"format": "double"
+					},
+					"size": {
+						"type": "number",
+						"format": "double"
 					}
 				},
 				"required": [
-					"email",
-					"name",
-					"phoneNumbers"
+					"address",
+					"token"
 				],
 				"type": "object",
-				"description": "From T, pick a set of properties whose keys are in the union K"
-			},
-			"UserCreationParams": {
-				"$ref": "#/components/schemas/Pick_User.email-or-name-or-phoneNumbers_"
+				"additionalProperties": false
 			}
 		},
 		"securitySchemes": {}
@@ -50,7 +64,7 @@
 	"paths": {
 		"/wallet/approval": {
 			"get": {
-				"operationId": "GetUser",
+				"operationId": "GetApproval",
 				"responses": {
 					"200": {
 						"description": "Ok",
@@ -98,12 +112,17 @@
 				]
 			}
 		},
-		"/wallet": {
+		"/wallet/history": {
 			"post": {
-				"operationId": "CreateUser",
+				"operationId": "GetHistory",
 				"responses": {
 					"201": {
-						"description": "Created"
+						"description": "Created",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
 					}
 				},
 				"security": [],
@@ -113,8 +132,58 @@
 					"content": {
 						"application/json": {
 							"schema": {
-								"$ref": "#/components/schemas/UserCreationParams"
+								"$ref": "#/components/schemas/HistoryParams"
 							}
+						}
+					}
+				}
+			}
+		},
+		"/log": {
+			"post": {
+				"operationId": "Record",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
+						}
+					}
+				}
+			}
+		},
+		"/log/dapps": {
+			"post": {
+				"operationId": "RecordDapp",
+				"responses": {
+					"200": {
+						"description": "Ok",
+						"content": {
+							"application/json": {
+								"schema": {}
+							}
+						}
+					}
+				},
+				"security": [],
+				"parameters": [],
+				"requestBody": {
+					"required": true,
+					"content": {
+						"application/json": {
+							"schema": {}
 						}
 					}
 				}

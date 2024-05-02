@@ -1,5 +1,7 @@
 import 'dotenv/config';
-import { IConfig } from '@/config/config.interface';
+import { IConfig } from '@config/config.interface';
+
+console.log("🦅 ~ process.env:", process.env)
 
 export const config: IConfig = {
   appName: process.env.APP_NAME || 'SPW-Market',

@@ -1,26 +1,73 @@
 import bigdecimal from 'bigdecimal'
 import _, { sample, get } from 'lodash'
-import QueryString from 'query-string'
+import QueryString from 'querystring'
 import converter from 'hex2dec'
 import blake from 'blakejs'
 import { concat } from '@ethersproject/bytes'
 import { mapLimit } from 'async'
 import axios from 'axios'
 import moment from 'moment'
-import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
-const chainType: Record<string, string> = {}
+
+interface IToken {
+    address: string
+    chain: string
+    decimal: string
+}
+
+const chainType: Record<string, string> = {
+    kavaEvm: "kavaEvm",
+    confluxEvm: "confluxEvm",
+    xaiNetwork: "xaiNetwork",
+    chiliz: "chiliz",
+    mantle: "mantle",
+    zkSyncEra: "zkSyncEra",
+    zkSyncPolygon: "zkSyncPolygon",
+    baseTest: "baseTest",
+    ether: "ether",
+    binanceSmart: "binanceSmart",
+    heco: "heco",
+    tomo: "tomo",
+    avax: "avax",
+    matic: "matic",
+    fantom: "fantom",
+    arbitrum: "arbitrum",
+    arbitrumXdai: "arbitrumXdai",
+    celo: "celo",
+    optimism: "optimism",
+    xDai: "xDai",
+    boba: "boba",
+    aurora: "aurora",
+    cronos: "cronos",
+    bittorrent: "bittorrent",
+    moonbeam: "moonbeam",
+    97: "97",
+    11155111: "11155111",
+    linea: "linea",
+    kroma: "kroma",
+    ancient8: "ancient8",
+    ancient8Testnet: "ancient8Testnet",
+    casper:"casper", functionX:"functionX", kucoin:"kucoin", bitcoin:"bitcoin", binance:"binance", near:"near",
+    polkadot:"polkadot", avaxX:"avaxX", kusama:"kusama", tron:"tron",
+    thor:"thor", cosmos:"cosmos", terra:"terra", band:"band", kava:"kava", persistence:"persistence",
+    kardia:"kardia",
+    elrond:"elrond", helimum:"helimum", omg:"omg", dogecoin:"dogecoin", ronin:"ronin", okex:"okex",
+    klaytn:"klaytn", secretNetwork:"secretNetwork",
+    theta:"theta", thetaFuel:"thetaFuel", ton:"ton", platon:"platon",
+    zkFair: 'zkFair',
+    omni: 'omni',
+    orderly: 'orderly',
+    skate: 'skate',
+    wanchain: 'wanchain'
+}
 
 export const LINK_EXPLORER_API = {
-    kavaEvm: 'https://kavascan.com/api?',
-    confluxEvm: 'https://evmapi.confluxscan.io/api?',
-
-    xaiNetwork: 'https://explorer.xai-chain.net/api?',
-
+    [chainType.kavaEvm]: 'https://kavascan.com/api?',
+    [chainType.confluxEvm]: 'https://evmapi.confluxscan.io/api?',
+    [chainType.xaiNetwork]: 'https://explorer.xai-chain.net/api?',
     [chainType.chiliz]: 'https://scan.chiliz.com/api?',
     [chainType.mantle]: 'https://explorer.mantle.xyz/api?',
     [chainType.zkSyncEra]: 'https://zksync2-mainnet.zkscan.io/api?',
     [chainType.zkSyncPolygon]: 'https://api-zkevm.polygonscan.com/api?',
-
     [chainType.baseTest]: 'https://api-goerli.basescan.org/api?',
     [chainType.ether]: 'https://api.etherscan.io/api?',
     [chainType.binanceSmart]: 'https://api.bscscan.com/api?',
@@ -42,7 +89,13 @@ export const LINK_EXPLORER_API = {
     97: 'https://api-testnet.bscscan.com/api?',
     11155111: 'https://api-sepolia.etherscan.io/api?',
     [chainType.linea]: 'https://api.lineascan.build/api?',
-    [chainType.kroma]: 'https://api.kromascan.com/api?'
+    [chainType.kroma]: 'https://api.kromascan.com/api?',
+
+    // [chainType.zkFair]: 'https://scan.zkfair.io/api?',
+    // [chainType.omni]: 'https://explorer.mainnet.aurora.dev/api?',
+    [chainType.orderly]: 'https://explorer.orderly.network/api?',
+    [chainType.skate]: 'https://nolliescan.skatechain.org/api?',
+    // [chainType.wanchain]: 'https://api-moonbeam.moonscan.io/api?',
 }
 export const KEY_EXPLORER_API = {
     [chainType.cronos]: [
@@ -506,7 +559,7 @@ const uint8ArrayPkToAccountHash = (uint8ArrayPk: Uint8Array) => {
     }
 }
 export default class WalletServices {
-    static async getApproval(param:any) {
+    static async getApproval(param: any) {
         const { address, chain, page, size } = param
 
         if (chain === chainType.tomo) {
@@ -529,7 +582,6 @@ export default class WalletServices {
                     url,
                     query: {}
                 }
-                
             } else {
                 // let currPage =1
                 // while (currPage<page-1){
@@ -547,7 +599,6 @@ export default class WalletServices {
                             index
                         }
                     }
-                    
                 } else {
                     let currPage = 2
                     let fromBlockFetch = fromBlock
@@ -566,7 +617,6 @@ export default class WalletServices {
                             index: indexFetch
                         }
                     }
-                    
                 }
             }
         } else {
@@ -577,7 +627,7 @@ export default class WalletServices {
                 module: 'account',
                 address,
                 apiKey,
-                page:  parseFloat(page || 0) + 1,
+                page: parseFloat(page || 0) + 1,
                 offset: size,
                 sort: 'desc'
             }
@@ -591,14 +641,14 @@ export default class WalletServices {
 
     }
 
-    static async getHistory(req: ExRequest, res: ExResponse) {
-        const { page, size, token, address } = req.body
+    static async getHistory(params:any) {
+        const { page, size, token, address } = params
         const tokenAddress = token ? token.chain === chainType.terra ? token.denom : token.address : ''
 
         let arrHistory = await ExplorerServices.getTokenTransaction(token.chain, address, tokenAddress, page, size, token.bnbId, token.decimal)
 
         if (arrHistory && arrHistory.map && getLength(arrHistory) > 0) {
-            arrHistory = arrHistory.map(data => {
+            arrHistory = arrHistory.map((data:any) => {
                 const newData = data
                 if (data.transactionHash) {
                     newData.hash = data.transactionHash
@@ -620,15 +670,16 @@ export default class WalletServices {
                         ? convertWeiToBalance(data.value)
                         : convertWeiToBalance(data.value, getLength(tokenAddress) > 0 ? token.decimal : 18)
                 }
+                return newData
             }).sort((a, b) => b.timeStamp - a.timeStamp)
 
             if (address.startsWith('0x') && tokenAddress) {
-                res.json(arrHistory.filter(item => item != null))
+                return arrHistory.filter((item:any) => item != null)
             } else {
-                res.json(WalletServices.verifyResult(formatHistoryUnique(arrHistory).filter(item => item != null)))
+                return WalletServices.verifyResult(formatHistoryUnique(arrHistory).filter(item => item != null))
             }
         } else {
-            res.json([])
+            return []
         }
     }
 
@@ -646,7 +697,7 @@ export class ExplorerServices {
         return this.postGateWay('transaction/list', REQUEST_TYPE.GET, undefined, { account, offset: (offset - 1) * limit, limit })
     }
 
-    static async getTokenTransaction(chain, holder, token, page = 1, limit = 25, bnbId, tokenDecimals = 18) {
+    static async getTokenTransaction(chain: string, holder: string | string[], token: IToken | string | string[], page = 1, limit = 25, bnbId: string, tokenDecimals = 18) {
         if (chain === chainType.bitcoin) {
             return []
         } else if (chain === chainType.polkadot || chain === chainType.kusama) {
@@ -754,7 +805,7 @@ export class ExplorerServices {
                             timeStamp: (new Date(it.timestamp)).getTime() / 1000,
                             amount: convertWeiToBalance(it.tx.value.msg[0].value.amount[0].amount, 6)
                         }
-                    } else if (token.length < 20 && it.tx.value.msg[0].value.amount && it.tx.value.msg[0].value.amount[0].denom === token) {
+                    } else if ((token as string[]).length < 20 && it.tx.value.msg[0].value.amount && it.tx.value.msg[0].value.amount[0].denom === token) {
                         const data = {
                             hash: it.txhash,
                             from: it.tx.value.msg[0].value.from_address,
@@ -763,7 +814,7 @@ export class ExplorerServices {
                             amount: convertWeiToBalance(it.tx.value.msg[0].value.amount[0].amount, 6)
                         }
                         return data
-                    } else if (it.tx.value.msg[0].type === 'wasm/MsgExecuteContract' && token.length >= 20) {
+                    } else if (it.tx.value.msg[0].type === 'wasm/MsgExecuteContract' && (token as string[]).length >= 20) {
                         const isFrom = it.logs[0].events[1].attributes[2].value === holder
                         return {
                             hash: it.txhash,
@@ -1081,10 +1132,10 @@ export class ExplorerServices {
             }
             return []
         } else if (chain === chainType.theta || chain === chainType.thetaFuel) {
-            const data = await ExplorerServices.postGateWayThetaNetwork(holder, chain, token, page, limit)
+            const data = await ExplorerServices.postGateWayThetaNetwork(holder as string, chain, token, page, limit)
             return data
         } else if (chain === chainType.ton) {
-            const data = await ExplorerServices.postGateWayThetaNetwork(holder, chainType.ton, page, limit)
+            const data = await ExplorerServices.postGateWayThetaNetwork(holder as string, chainType.ton, page, limit)
             return data
         } else if (chain === chainType.ancient8) {
             return await this.postGateWayAncient8(holder, token, page, limit)
@@ -1093,7 +1144,7 @@ export class ExplorerServices {
         } else if (chain === chainType.coreDao) {
             return await this.postGateWayCoreDao(holder, token, page, limit)
         } else if (chain === 'seiEvm') {
-            return await this.getSeiEVM(holder, token, page, limit)
+            return await this.getSeiEVM(holder as string, token, page, limit)
         } else {
             const isTokenTxs = getLength(token) > 0
 

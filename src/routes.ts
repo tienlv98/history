@@ -4,6 +4,8 @@
 import { TsoaRoute, fetchMiddlewares, ExpressTemplateService } from '@tsoa/runtime';
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 import { HistoryController } from './controllers/market.controller';
+// WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+import { RecordController } from './controllers/market.controller';
 import type { Request as ExRequest, Response as ExResponse, RequestHandler, Router } from 'express';
 
 
@@ -11,14 +13,15 @@ import type { Request as ExRequest, Response as ExResponse, RequestHandler, Rout
 // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 
 const models: TsoaRoute.Models = {
-    "Pick_User.email-or-name-or-phoneNumbers_": {
-        "dataType": "refAlias",
-        "type": {"dataType":"nestedObjectLiteral","nestedProperties":{"email":{"dataType":"string","required":true},"name":{"dataType":"string","required":true},"phoneNumbers":{"dataType":"array","array":{"dataType":"string"},"required":true}},"validators":{}},
-    },
-    // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-    "UserCreationParams": {
-        "dataType": "refAlias",
-        "type": {"ref":"Pick_User.email-or-name-or-phoneNumbers_","validators":{}},
+    "HistoryParams": {
+        "dataType": "refObject",
+        "properties": {
+            "address": {"dataType":"string","required":true},
+            "token": {"dataType":"nestedObjectLiteral","nestedProperties":{"decimal":{"dataType":"string","required":true},"chain":{"dataType":"string","required":true},"address":{"dataType":"string","required":true}},"required":true},
+            "page": {"dataType":"double"},
+            "size": {"dataType":"double"},
+        },
+        "additionalProperties": false,
     },
     // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
 };
@@ -33,9 +36,9 @@ export function RegisterRoutes(app: Router) {
     // ###########################################################################################################
         app.get('/wallet/approval',
             ...(fetchMiddlewares<RequestHandler>(HistoryController)),
-            ...(fetchMiddlewares<RequestHandler>(HistoryController.prototype.getUser)),
+            ...(fetchMiddlewares<RequestHandler>(HistoryController.prototype.getApproval)),
 
-            function HistoryController_getUser(request: ExRequest, response: ExResponse, next: any) {
+            function HistoryController_getApproval(request: ExRequest, response: ExResponse, next: any) {
             const args: Record<string, TsoaRoute.ParameterSchema> = {
                     address: {"in":"query","name":"address","dataType":"string"},
                     chain: {"in":"query","name":"chain","dataType":"string"},
@@ -52,7 +55,7 @@ export function RegisterRoutes(app: Router) {
                 const controller = new HistoryController();
 
               templateService.apiHandler({
-                methodName: 'getUser',
+                methodName: 'getApproval',
                 controller,
                 response,
                 next,
@@ -64,13 +67,13 @@ export function RegisterRoutes(app: Router) {
             }
         });
         // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
-        app.post('/wallet',
+        app.post('/wallet/history',
             ...(fetchMiddlewares<RequestHandler>(HistoryController)),
-            ...(fetchMiddlewares<RequestHandler>(HistoryController.prototype.createUser)),
+            ...(fetchMiddlewares<RequestHandler>(HistoryController.prototype.getHistory)),
 
-            function HistoryController_createUser(request: ExRequest, response: ExResponse, next: any) {
+            function HistoryController_getHistory(request: ExRequest, response: ExResponse, next: any) {
             const args: Record<string, TsoaRoute.ParameterSchema> = {
-                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"UserCreationParams"},
+                    requestBody: {"in":"body","name":"requestBody","required":true,"ref":"HistoryParams"},
             };
 
             // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
@@ -82,12 +85,72 @@ export function RegisterRoutes(app: Router) {
                 const controller = new HistoryController();
 
               templateService.apiHandler({
-                methodName: 'createUser',
+                methodName: 'getHistory',
                 controller,
                 response,
                 next,
                 validatedArgs,
                 successStatus: 201,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/log',
+            ...(fetchMiddlewares<RequestHandler>(RecordController)),
+            ...(fetchMiddlewares<RequestHandler>(RecordController.prototype.record)),
+
+            function RecordController_record(request: ExRequest, response: ExResponse, next: any) {
+            const args: Record<string, TsoaRoute.ParameterSchema> = {
+                    requestBody: {"in":"body","name":"requestBody","required":true,"dataType":"any"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args, request, response });
+
+                const controller = new RecordController();
+
+              templateService.apiHandler({
+                methodName: 'record',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
+              });
+            } catch (err) {
+                return next(err);
+            }
+        });
+        // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+        app.post('/log/dapps',
+            ...(fetchMiddlewares<RequestHandler>(RecordController)),
+            ...(fetchMiddlewares<RequestHandler>(RecordController.prototype.recordDapp)),
+
+            function RecordController_recordDapp(request: ExRequest, response: ExResponse, next: any) {
+            const args: Record<string, TsoaRoute.ParameterSchema> = {
+                    requestBody: {"in":"body","name":"requestBody","required":true,"dataType":"any"},
+            };
+
+            // WARNING: This file was auto-generated with tsoa. Please do not modify it. Re-run tsoa to re-generate this file: https://github.com/lukeautry/tsoa
+
+            let validatedArgs: any[] = [];
+            try {
+                validatedArgs = templateService.getValidatedArgs({ args, request, response });
+
+                const controller = new RecordController();
+
+              templateService.apiHandler({
+                methodName: 'recordDapp',
+                controller,
+                response,
+                next,
+                validatedArgs,
+                successStatus: undefined,
               });
             } catch (err) {
                 return next(err);
