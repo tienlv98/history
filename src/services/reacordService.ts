@@ -17,22 +17,22 @@ export const model = {
 }
 
 const RecordDapps = mongoose.model('RecordDapps',new Schema({
-    // source: model.string,
-    url: model.sString
-    // hash: model.sString,
-    // method: model.sString,
-    // wallet: model.sString,
-    // chain: model.sString,
-    // transaction: model.sObject,
-    // meta: model.sObject,
+    source: model.string,
+    url: model.sString,
+    hash: model.sString,
+    method: model.sString,
+    wallet: model.sString,
+    chain: model.sString,
+    transaction: model.sObject,
+    meta: model.sObject,
 
-    // signature: model.sObject,
-    // signer: model.sString,
-    // sender: model.sObject,
-    // signed: model.sObject
+    signature: model.sObject,
+    signer: model.sString,
+    sender: model.sObject,
+    signed: model.sObject
 }))
 
-const Record = mongoose.model('admin', new Schema({
+const Record = mongoose.model('Record', new Schema({
     from: model.string,
     to: model.string,
     hash: model.string,
@@ -50,13 +50,17 @@ const Record = mongoose.model('admin', new Schema({
 export default class RecordServices {
     static async logDappsRecord(params: any) {
         console.log("🦅 ~ params:", params)
-        const { url, hash, method, wallet, chain, transaction, meta } = params
-        const okla = new RecordDapps()
-        await okla.save()
+        const { url, hash, method, wallet, chain, transaction, meta, source } = params
 
         await RecordDapps.create({
             url,
-            // source: req.get('source')
+            hash,
+            method,
+            wallet,
+            chain,
+            transaction,
+            meta,
+            source
         })
     }
 
